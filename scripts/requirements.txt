@@ -1,0 +1,4 @@
+# Install with: pip install -r requirements.txt
+# Official Portaldot Python SDK
+# From: https://portaldot-dev.readthedocs.io/en/latest/python-sdk/Install.html
+substrate-interface
