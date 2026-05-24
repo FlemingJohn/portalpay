@@ -2,21 +2,11 @@
  * pages/Payroll.jsx
  * Self-executing payroll — a recurring batch payment the chain runs itself.
  *
- * Schedules a utility.batchAll of transfers to repeat every N blocks, M times,
- * via scheduler.scheduleNamedAfter. No keeper bot, no server, no contract —
- * pay your whole team by name, automatically.
+ * scheduler.scheduleNamedAfter wrapping utility.batchAll. No keeper bot,
+ * no server, no contract — pay your whole team by name, automatically.
  *
- * Pallets:
- *   scheduler.scheduleNamedAfter
- *     https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/scheduler.html
- *   utility.batchAll
- *     https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/utility.html
- *
- * Linear flow:
- *   1. Enter recipients (name + amount), period, repetitions
- *   2. Resolve all usernames → addresses
- *   3. Build batchAll([...transferKeepAlive])
- *   4. scheduleCall(batchAll, { afterBlocks, periodBlocks, repetitions })
+ * https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/scheduler.html
+ * https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/utility.html
  */
 
 import React, { useState } from "react";
@@ -26,13 +16,14 @@ import { log }          from "../lib/logger";
 import { POT_SUFFIX, potToPlanck } from "../lib/chain";
 
 const INPUT = {
-  width: "100%", padding: "10px 14px", borderRadius: 8,
-  border: "1px solid #e5e7eb", fontSize: 14,
-  boxSizing: "border-box", marginBottom: 14,
+  width: "100%", padding: "11px 14px", borderRadius: 0,
+  border: "1px solid #1A1A1A", background: "#0A0A0A", color: "#ffffff",
+  fontSize: 14, boxSizing: "border-box", marginBottom: 14, outline: "none",
 };
 const LABEL = {
-  fontSize: 13, fontWeight: 500, color: "#374151",
-  display: "block", marginBottom: 6,
+  fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)",
+  display: "block", marginBottom: 8,
+  textTransform: "uppercase", letterSpacing: "0.12em",
 };
 
 export default function Payroll({ api, getSigner, isConnected }) {
@@ -104,8 +95,8 @@ export default function Payroll({ api, getSigner, isConnected }) {
     return (
       <div style={{ maxWidth: 480, margin: "80px auto", padding: 16, textAlign: "center" }}>
         <div style={{ fontSize: 44, marginBottom: 16 }}>💼</div>
-        <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Connect your wallet first</h2>
-        <p style={{ color: "#6b7280", lineHeight: 1.7 }}>
+        <h2 style={{ fontWeight: 800, marginBottom: 8, textTransform: "uppercase" }}>Connect your wallet first</h2>
+        <p style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>
           Click "Connect wallet" to schedule payroll.
         </p>
       </div>
@@ -117,22 +108,23 @@ export default function Payroll({ api, getSigner, isConnected }) {
     return (
       <div style={{ maxWidth: 480, margin: "80px auto", padding: 16, textAlign: "center" }}>
         <div style={{ fontSize: 52, marginBottom: 16 }}>💸</div>
-        <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Payroll scheduled</h2>
-        <p style={{ color: "#6b7280", marginBottom: 20, lineHeight: 1.6 }}>
+        <h2 style={{ fontWeight: 800, marginBottom: 8, textTransform: "uppercase" }}>Payroll scheduled</h2>
+        <p style={{ color: "rgba(255,255,255,0.55)", marginBottom: 20, lineHeight: 1.6 }}>
           The chain will pay {validCount} {validCount === 1 ? "person" : "people"} every
           {" "}{periodBlocks} blocks, {repetitions} times — automatically, with no bot.
         </p>
         <div style={{
-          background: "#f9fafb", borderRadius: 8, padding: "12px 16px",
-          fontFamily: "monospace", fontSize: 12, color: "#374151",
+          background: "#0A0A0A", border: "1px solid #1A1A1A", borderRadius: 0, padding: "12px 16px",
+          fontFamily: '"JetBrains Mono", ui-monospace, monospace', fontSize: 12, color: "#00FF00",
           wordBreak: "break-all", marginBottom: 20,
         }}>
           tx: {txHash}
         </div>
         <button onClick={() => setTxHash(null)}
           style={{
-            padding: "10px 24px", borderRadius: 8, border: "none",
-            background: "#111", color: "#fff", fontSize: 14, cursor: "pointer",
+            padding: "11px 24px", borderRadius: 0, border: "none",
+            background: "#00FF00", color: "#050505", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            textTransform: "uppercase", letterSpacing: "0.12em", boxShadow: "0 0 15px rgba(0,255,0,0.2)",
           }}>
           Schedule another
         </button>
@@ -144,8 +136,8 @@ export default function Payroll({ api, getSigner, isConnected }) {
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "32px 16px" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 6px" }}>Payroll</h1>
-      <p style={{ color: "#6b7280", margin: "0 0 24px", lineHeight: 1.6 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "-0.5px" }}>Payroll</h1>
+      <p style={{ color: "rgba(255,255,255,0.55)", margin: "0 0 24px", lineHeight: 1.6 }}>
         Pay your whole team by name on a schedule. The chain fires the batch itself —
         no server, no cron, no contract.
       </p>
@@ -166,16 +158,17 @@ export default function Payroll({ api, getSigner, isConnected }) {
           />
           {recipients.length > 1 && (
             <button onClick={() => removeRecipient(i)}
-              style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid #e5e7eb",
-                background: "#fff", color: "#6b7280", cursor: "pointer", fontSize: 14 }}>
+              style={{ padding: "9px 11px", borderRadius: 0, border: "1px solid #1A1A1A",
+                background: "transparent", color: "rgba(255,255,255,0.5)", cursor: "pointer", fontSize: 14 }}>
               ✕
             </button>
           )}
         </div>
       ))}
       <button onClick={addRecipient}
-        style={{ fontSize: 13, color: "#6366f1", background: "none",
-          border: "none", cursor: "pointer", padding: "4px 0", marginBottom: 16 }}>
+        style={{ fontSize: 12, color: "#00FF00", background: "none",
+          border: "none", cursor: "pointer", padding: "4px 0", marginBottom: 16,
+          textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600 }}>
         + Add recipient
       </button>
 
@@ -196,32 +189,34 @@ export default function Payroll({ api, getSigner, isConnected }) {
 
       {total > 0 && periodBlocks && repetitions && (
         <div style={{
-          background: "#fafafe", border: "1px solid #e0e7ff",
-          borderRadius: 8, padding: "10px 14px", marginBottom: 14,
-          fontSize: 13, color: "#374151", lineHeight: 1.6,
+          background: "#0A0A0A", border: "1px solid #1A1A1A",
+          borderRadius: 0, padding: "10px 14px", marginBottom: 14,
+          fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.6,
         }}>
-          <strong>{(total * parseInt(repetitions || 0)).toFixed(4)} POT</strong> total
+          <strong style={{ color: "#00FF00" }}>{(total * parseInt(repetitions || 0)).toFixed(4)} POT</strong> total
           {" "}— {total.toFixed(4)} POT per run × {repetitions} runs
         </div>
       )}
 
       {(formError || schedErr) && (
-        <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 14 }}>
+        <p style={{ color: "#f87171", fontSize: 13, marginBottom: 14 }}>
           {formError || schedErr}
         </p>
       )}
 
       <button onClick={handleSchedule} disabled={submitting || !api}
         style={{
-          width: "100%", padding: 13, borderRadius: 8, border: "none",
-          background: submitting ? "#9ca3af" : "#111",
-          color: "#fff", fontSize: 15, fontWeight: 600,
+          width: "100%", padding: 13, borderRadius: 0, border: "none",
+          background: submitting ? "#1A1A1A" : "#00FF00",
+          color: submitting ? "rgba(255,255,255,0.4)" : "#050505",
+          fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em",
           cursor: submitting ? "default" : "pointer",
+          boxShadow: submitting ? "none" : "0 0 15px rgba(0,255,0,0.2)",
         }}>
         {submitting ? "Scheduling onchain…" : "Schedule payroll"}
       </button>
 
-      <p style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", marginTop: 8 }}>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "center", marginTop: 8 }}>
         scheduler.scheduleNamedAfter wrapping utility.batchAll — fully native
       </p>
     </div>

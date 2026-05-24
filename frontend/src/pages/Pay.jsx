@@ -20,13 +20,14 @@ import { log          } from "../lib/logger";
 import { POT_SUFFIX   } from "../lib/chain";
 
 const INPUT = {
-  width: "100%", padding: "10px 14px", borderRadius: 8,
-  border: "1px solid #e5e7eb", fontSize: 14,
-  boxSizing: "border-box", marginBottom: 14,
+  width: "100%", padding: "11px 14px", borderRadius: 0,
+  border: "1px solid #1A1A1A", background: "#0A0A0A", color: "#ffffff",
+  fontSize: 14, boxSizing: "border-box", marginBottom: 14, outline: "none",
 };
 const LABEL = {
-  fontSize: 13, fontWeight: 500, color: "#374151",
-  display: "block", marginBottom: 6,
+  fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)",
+  display: "block", marginBottom: 8,
+  textTransform: "uppercase", letterSpacing: "0.12em",
 };
 
 export default function Pay({ api, getSigner, isConnected }) {
@@ -217,13 +218,13 @@ export default function Pay({ api, getSigner, isConnected }) {
     return (
       <div style={{ maxWidth: 480, margin: "80px auto", padding: 16, textAlign: "center" }}>
         <div style={{ fontSize: 52, marginBottom: 16 }}>✅</div>
-        <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Payment sent</h2>
-        <p style={{ color: "#6b7280", marginBottom: 20 }}>
+        <h2 style={{ fontWeight: 800, marginBottom: 8, textTransform: "uppercase", letterSpacing: "-0.5px" }}>Payment sent</h2>
+        <p style={{ color: "rgba(255,255,255,0.55)", marginBottom: 20 }}>
           Your POT has been sent and confirmed on Portaldot.
         </p>
         <div style={{
-          background: "#f9fafb", borderRadius: 8, padding: "12px 16px",
-          fontFamily: "monospace", fontSize: 12, color: "#374151",
+          background: "#0A0A0A", border: "1px solid #1A1A1A", borderRadius: 0, padding: "12px 16px",
+          fontFamily: '"JetBrains Mono", ui-monospace, monospace', fontSize: 12, color: "#00FF00",
           wordBreak: "break-all", marginBottom: 20,
         }}>
           tx: {txHash}
@@ -231,8 +232,9 @@ export default function Pay({ api, getSigner, isConnected }) {
         <button
           onClick={() => { setTxHash(null); setUsername(""); setAmount(""); }}
           style={{
-            padding: "10px 24px", borderRadius: 8, border: "none",
-            background: "#111", color: "#fff", fontSize: 14, cursor: "pointer",
+            padding: "11px 24px", borderRadius: 0, border: "none",
+            background: "#00FF00", color: "#050505", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            textTransform: "uppercase", letterSpacing: "0.12em", boxShadow: "0 0 15px rgba(0,255,0,0.2)",
           }}
         >
           Send another
@@ -257,10 +259,12 @@ export default function Pay({ api, getSigner, isConnected }) {
           ["asset",  "Pay a token"],
         ].map(([m, label]) => (
           <button key={m} onClick={() => setMode(m)} style={{
-            padding: "7px 16px", borderRadius: 8, fontSize: 14, border: "none",
-            background: mode === m ? "#111" : "#f3f4f6",
-            color:      mode === m ? "#fff" : "#374151",
-            cursor: "pointer", fontWeight: mode === m ? 600 : 400,
+            padding: "8px 16px", borderRadius: 0, fontSize: 12, border: "1px solid #1A1A1A",
+            background: mode === m ? "#00FF00" : "transparent",
+            color:      mode === m ? "#050505" : "rgba(255,255,255,0.6)",
+            cursor: "pointer", fontWeight: mode === m ? 700 : 500,
+            textTransform: "uppercase", letterSpacing: "0.1em",
+            boxShadow: mode === m ? "0 0 15px rgba(0,255,0,0.2)" : "none",
           }}>
             {label}
           </button>
@@ -270,7 +274,7 @@ export default function Pay({ api, getSigner, isConnected }) {
       {/* Single pay form */}
       {mode === "single" && (
         <>
-          <label style={{ fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 }}>
+          <label style={LABEL}>
             Recipient username
           </label>
           <input
@@ -280,7 +284,7 @@ export default function Pay({ api, getSigner, isConnected }) {
             onChange={e => setUsername(e.target.value)}
           />
 
-          <label style={{ fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 }}>
+          <label style={LABEL}>
             Amount (POT)
           </label>
           <input
@@ -311,8 +315,8 @@ export default function Pay({ api, getSigner, isConnected }) {
               />
               {recipients.length > 2 && (
                 <button onClick={() => removeRecipient(i)}
-                  style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid #e5e7eb",
-                    background: "#fff", color: "#6b7280", cursor: "pointer", fontSize: 14 }}>
+                  style={{ padding: "9px 11px", borderRadius: 0, border: "1px solid #1A1A1A",
+                    background: "transparent", color: "rgba(255,255,255,0.5)", cursor: "pointer", fontSize: 14 }}>
                   ✕
                 </button>
               )}
@@ -320,8 +324,9 @@ export default function Pay({ api, getSigner, isConnected }) {
           ))}
           <button
             onClick={addRecipient}
-            style={{ fontSize: 13, color: "#6366f1", background: "none",
-              border: "none", cursor: "pointer", padding: "4px 0", marginBottom: 16 }}
+            style={{ fontSize: 12, color: "#00FF00", background: "none",
+              border: "none", cursor: "pointer", padding: "4px 0", marginBottom: 16,
+              textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600 }}
           >
             + Add recipient
           </button>
@@ -421,10 +426,12 @@ export default function Pay({ api, getSigner, isConnected }) {
         }
         disabled={submitting || !api}
         style={{
-          width: "100%", padding: 13, borderRadius: 8, border: "none",
-          background: submitting ? "#9ca3af" : "#111",
-          color: "#fff", fontSize: 15, fontWeight: 600,
+          width: "100%", padding: 13, borderRadius: 0, border: "none",
+          background: submitting ? "#1A1A1A" : "#00FF00",
+          color: submitting ? "rgba(255,255,255,0.4)" : "#050505",
+          fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em",
           cursor: submitting ? "default" : "pointer",
+          boxShadow: submitting ? "none" : "0 0 15px rgba(0,255,0,0.2)",
         }}
       >
         {submitting

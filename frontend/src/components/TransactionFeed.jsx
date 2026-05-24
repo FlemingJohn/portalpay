@@ -24,7 +24,7 @@ const EVENT_CONFIG = {
     label: (e, myAddress) => {
       if (myAddress && e.to === myAddress)   return { dir: "Received", color: "#16a34a" };
       if (myAddress && e.from === myAddress) return { dir: "Sent",     color: "#dc2626" };
-      return { dir: "Transfer", color: "#374151" };
+      return { dir: "Transfer", color: "rgba(255,255,255,0.7)" };
     },
   },
   vesting_updated: {
@@ -48,8 +48,8 @@ function FeedItem({ event, myAddress }) {
   return (
     <div style={{
       display: "flex", alignItems: "flex-start", gap: 12,
-      padding: "12px 16px", borderBottom: "1px solid #f3f4f6",
-      background: "#fff", animation: "fadeIn 0.3s ease",
+      padding: "12px 16px", borderBottom: "1px solid #1A1A1A",
+      background: "#0A0A0A", animation: "fadeIn 0.3s ease",
     }}>
       {/* Icon */}
       <div style={{
@@ -73,10 +73,10 @@ function FeedItem({ event, myAddress }) {
 
         {event.type === "transfer" && (
           <>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#111", margin: "2px 0" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#ffffff", margin: "2px 0", fontFamily: '"JetBrains Mono", ui-monospace, monospace' }}>
               {event.amount.toFixed(4)} POT
             </div>
-            <div style={{ fontSize: 11, color: "#9ca3af", fontFamily: "monospace" }}>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: '"JetBrains Mono", ui-monospace, monospace' }}>
               {shortAddress(event.from)} → {shortAddress(event.to)}
             </div>
           </>
@@ -102,13 +102,13 @@ export default function TransactionFeed({ api, filterAddress = null, maxHeight =
   const { events, currentBlock, listening, clearFeed } = useFeed(api, filterAddress);
 
   return (
-    <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
+    <div style={{ border: "1px solid #1A1A1A", borderRadius: 0, overflow: "hidden" }}>
 
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "12px 16px", background: "#f9fafb",
-        borderBottom: "1px solid #e5e7eb",
+        padding: "12px 16px", background: "#050505",
+        borderBottom: "1px solid #1A1A1A",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {/* Live indicator */}
@@ -117,7 +117,7 @@ export default function TransactionFeed({ api, filterAddress = null, maxHeight =
             background: listening ? "#22c55e" : "#d1d5db",
             boxShadow: listening ? "0 0 6px #22c55e" : "none",
           }} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.8)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
             Live feed
           </span>
           {currentBlock && (

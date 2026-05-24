@@ -2,37 +2,11 @@
  * pages/LockedPay.jsx
  * Two features on one page:
  *
- * TAB 1 — Locked Payment (Pay on Delivery)
- *   Send POT to a username but it unlocks gradually over N blocks.
- *   The recipient can see it locked in their wallet but cannot spend it yet.
- *   When the blocks pass, they call vest() to claim it.
+ * TAB 1 — Locked Payment: vesting.vestedTransfer (funds unlock over blocks).
+ * TAB 2 — Recurring Payment: scheduler (chain fires the payment itself).
  *
- *   Extrinsic: vesting.vestedTransfer(target, schedule)
- *   https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/vesting.html
- *
- * TAB 2 — Recurring Payment
- *   Schedule a payment to fire automatically at a future block,
- *   optionally repeating every N blocks.
- *
- *   Extrinsic: scheduler.scheduleNamed(id, when, maybe_periodic, priority, call)
- *   https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/scheduler.html
- *
- *   maybe_periodic = (period_blocks, repetitions) — enables recurring payments
- *   The id is a [u8;32] — we derive it from username + timestamp
- *
- * Linear flow for Locked Pay:
- *   1. Sender types username + amount + unlock blocks
- *   2. App resolves username → address
- *   3. vesting.vestedTransfer called → POT locked onchain
- *   4. Recipient sees locked balance on their profile
- *   5. After N blocks, recipient calls vest() → POT arrives
- *
- * Linear flow for Recurring Pay:
- *   1. Sender types username + amount + start block + period + repetitions
- *   2. App resolves username → address
- *   3. scheduler.scheduleNamed called → task registered onchain
- *   4. Chain automatically fires balances.transferKeepAlive at each scheduled block
- *   5. Sender can cancel anytime with scheduler.cancelNamed
+ * https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/vesting.html
+ * https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/scheduler.html
  */
 
 import React, { useState } from "react";
@@ -44,16 +18,36 @@ import { POT_SUFFIX, potToPlanck } from "../lib/chain";
 import VestingStatus from "../components/VestingStatus";
 
 const INPUT = {
-  width: "100%", padding: "10px 14px", borderRadius: 8,
-  border: "1px solid #e5e7eb", fontSize: 14,
-  boxSizing: "border-box", marginBottom: 14,
+  width: "100%", padding: "11px 14px", borderRadius: 0,
+  border: "1px solid #1A1A1A", background: "#0A0A0A", color: "#ffffff",
+  fontSize: 14, boxSizing: "border-box", marginBottom: 14, outline: "none",
 };
 const LABEL = {
-  fontSize: 13, fontWeight: 500, color: "#374151",
-  display: "block", marginBottom: 6,
+  fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)",
+  display: "block", marginBottom: 8,
+  textTransform: "uppercase", letterSpacing: "0.12em",
 };
+const PRIMARY_BTN = (submitting) => ({
+  width: "100%", padding: 13, borderRadius: 0, border: "none",
+  background: submitting ? "#1A1A1A" : "#00FF00",
+  color: submitting ? "rgba(255,255,255,0.4)" : "#050505",
+  fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em",
+  cursor: submitting ? "default" : "pointer",
+  boxShadow: submitting ? "none" : "0 0 15px rgba(0,255,0,0.2)",
+});
+const TX_BOX = {
+  background: "#0A0A0A", border: "1px solid #1A1A1A", borderRadius: 0, padding: 12,
+  fontFamily: '"JetBrains Mono", ui-monospace, monospace', fontSize: 11, color: "#00FF00",
+  wordBreak: "break-all", marginBottom: 16,
+};
+const INFO_BOX = {
+  background: "#0A0A0A", border: "1px solid #1A1A1A",
+  borderRadius: 0, padding: "10px 14px", marginBottom: 14,
+  fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.6,
+};
+const FOOTNOTE = { fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "center", marginTop: 8 };
 
-// ── Recurring Pay — uses scheduler.scheduleNamed ──────────────────────────
+// ── Recurring Pay — uses scheduler via useScheduler ───────────────────────
 
 function RecurringPayForm({ api, getSigner, isConnected }) {
   const { resolveUsername } = useIdentity(api);
@@ -108,23 +102,18 @@ function RecurringPayForm({ api, getSigner, isConnected }) {
     return (
       <div style={{ textAlign: "center", padding: "24px 0" }}>
         <div style={{ fontSize: 44, marginBottom: 12 }}>⏰</div>
-        <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Recurring payment scheduled</h3>
-        <p style={{ color: "#6b7280", fontSize: 14, marginBottom: 12, lineHeight: 1.6 }}>
+        <h3 style={{ fontWeight: 800, marginBottom: 8, textTransform: "uppercase" }}>Recurring payment scheduled</h3>
+        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, marginBottom: 12, lineHeight: 1.6 }}>
           The Portaldot chain will automatically send {amount} POT to {username}{" "}
           every {periodBlocks} blocks, {repetitions} times.
           No action needed — the chain handles it.
         </p>
-        <div style={{
-          background: "#f9fafb", borderRadius: 8, padding: 12,
-          fontFamily: "monospace", fontSize: 11, color: "#374151",
-          wordBreak: "break-all", marginBottom: 16,
-        }}>
-          tx: {txHash}
-        </div>
+        <div style={TX_BOX}>tx: {txHash}</div>
         <button onClick={() => { setTxHash(null); setUsername(""); setAmount(""); }}
           style={{
-            padding: "10px 20px", borderRadius: 8, border: "none",
-            background: "#111", color: "#fff", fontSize: 14, cursor: "pointer",
+            padding: "11px 20px", borderRadius: 0, border: "none",
+            background: "#00FF00", color: "#050505", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            textTransform: "uppercase", letterSpacing: "0.12em", boxShadow: "0 0 15px rgba(0,255,0,0.2)",
           }}>
           Schedule another
         </button>
@@ -134,7 +123,7 @@ function RecurringPayForm({ api, getSigner, isConnected }) {
 
   return (
     <>
-      <p style={{ color: "#6b7280", margin: "0 0 20px", lineHeight: 1.6, fontSize: 14 }}>
+      <p style={{ color: "rgba(255,255,255,0.55)", margin: "0 0 20px", lineHeight: 1.6, fontSize: 14 }}>
         Schedule automatic recurring payments. The Portaldot chain fires them at the right block —
         no server, no cron job, no action needed from you.
       </p>
@@ -165,30 +154,20 @@ function RecurringPayForm({ api, getSigner, isConnected }) {
       </div>
 
       {periodBlocks && repetitions && amount && (
-        <div style={{
-          background: "#fafafe", border: "1px solid #e0e7ff",
-          borderRadius: 8, padding: "10px 14px", marginBottom: 14,
-          fontSize: 13, color: "#374151", lineHeight: 1.6,
-        }}>
-          Total: <strong>{(parseFloat(amount || 0) * parseInt(repetitions || 0)).toFixed(4)} POT</strong>
-          {" "}paid over <strong>{(parseInt(periodBlocks || 0) * parseInt(repetitions || 0))} blocks</strong>
+        <div style={INFO_BOX}>
+          Total: <strong style={{ color: "#00FF00" }}>{(parseFloat(amount || 0) * parseInt(repetitions || 0)).toFixed(4)} POT</strong>
+          {" "}paid over <strong style={{ color: "#ffffff" }}>{(parseInt(periodBlocks || 0) * parseInt(repetitions || 0))} blocks</strong>
         </div>
       )}
 
-      {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 14 }}>{error}</p>}
+      {error && <p style={{ color: "#f87171", fontSize: 13, marginBottom: 14 }}>{error}</p>}
 
-      <button onClick={handleSchedule} disabled={submitting || !api}
-        style={{
-          width: "100%", padding: 13, borderRadius: 8, border: "none",
-          background: submitting ? "#9ca3af" : "#111",
-          color: "#fff", fontSize: 15, fontWeight: 600,
-          cursor: submitting ? "default" : "pointer",
-        }}>
+      <button onClick={handleSchedule} disabled={submitting || !api} style={PRIMARY_BTN(submitting)}>
         {submitting ? "Scheduling on chain…" : "Schedule recurring payment"}
       </button>
 
-      <p style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", marginTop: 8 }}>
-        Uses scheduler.scheduleNamed — chain executes payments automatically
+      <p style={FOOTNOTE}>
+        scheduler.scheduleNamedAfter — chain executes payments automatically
       </p>
     </>
   );
@@ -235,8 +214,8 @@ export default function LockedPay({ api, getSigner, isConnected, walletAddress }
     return (
       <div style={{ maxWidth: 480, margin: "80px auto", padding: 16, textAlign: "center" }}>
         <div style={{ fontSize: 44, marginBottom: 16 }}>🔒</div>
-        <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Connect your wallet first</h2>
-        <p style={{ color: "#6b7280", lineHeight: 1.7 }}>
+        <h2 style={{ fontWeight: 800, marginBottom: 8, textTransform: "uppercase" }}>Connect your wallet first</h2>
+        <p style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>
           Click "Connect wallet" to use locked or recurring payments.
         </p>
       </div>
@@ -245,11 +224,13 @@ export default function LockedPay({ api, getSigner, isConnected, walletAddress }
 
   const tabBtn = (id, label) => (
     <button onClick={() => setTab(id)} style={{
-      padding: "8px 18px", borderRadius: 8, border: "none",
-      background: tab === id ? "#111" : "#f3f4f6",
-      color:      tab === id ? "#fff" : "#374151",
-      fontSize: 14, cursor: "pointer",
-      fontWeight: tab === id ? 600 : 400,
+      padding: "8px 18px", borderRadius: 0, border: "1px solid #1A1A1A",
+      background: tab === id ? "#00FF00" : "transparent",
+      color:      tab === id ? "#050505" : "rgba(255,255,255,0.6)",
+      fontSize: 12, cursor: "pointer",
+      fontWeight: tab === id ? 700 : 500,
+      textTransform: "uppercase", letterSpacing: "0.1em",
+      boxShadow: tab === id ? "0 0 15px rgba(0,255,0,0.2)" : "none",
     }}>
       {label}
     </button>
@@ -257,15 +238,15 @@ export default function LockedPay({ api, getSigner, isConnected, walletAddress }
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "32px 16px" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 6px" }}>Advanced payments</h1>
-      <p style={{ color: "#6b7280", margin: "0 0 24px", lineHeight: 1.6 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "-0.5px" }}>Advanced payments</h1>
+      <p style={{ color: "rgba(255,255,255,0.55)", margin: "0 0 24px", lineHeight: 1.6 }}>
         Native Portaldot pallet features — no smart contracts.
       </p>
 
       {/* Tab toggle */}
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-        {tabBtn("locked",    "🔒 Locked payment")}
-        {tabBtn("recurring", "⏰ Recurring payment")}
+        {tabBtn("locked",    "Locked payment")}
+        {tabBtn("recurring", "Recurring payment")}
       </div>
 
       {/* ── Locked payment tab ── */}
@@ -274,22 +255,16 @@ export default function LockedPay({ api, getSigner, isConnected, walletAddress }
           {txHash ? (
             <div style={{ textAlign: "center", padding: "24px 0" }}>
               <div style={{ fontSize: 44, marginBottom: 12 }}>🔒</div>
-              <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Payment locked</h3>
-              <p style={{ color: "#6b7280", fontSize: 14, marginBottom: 12, lineHeight: 1.6 }}>
+              <h3 style={{ fontWeight: 800, marginBottom: 8, textTransform: "uppercase" }}>Payment locked</h3>
+              <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, marginBottom: 12, lineHeight: 1.6 }}>
                 {amount} POT is now locked onchain for {username}.
                 It unlocks over the next {unlockBlocks} blocks.
                 They can see it in their wallet already — but cannot spend it yet.
               </p>
-              <div style={{
-                background: "#f9fafb", borderRadius: 8, padding: 12,
-                fontFamily: "monospace", fontSize: 11, color: "#374151",
-                wordBreak: "break-all", marginBottom: 16,
-              }}>
-                tx: {txHash}
-              </div>
+              <div style={TX_BOX}>tx: {txHash}</div>
               {destAddr && (
                 <div style={{ marginBottom: 16 }}>
-                  <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 8 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>
                     Recipient vesting status:
                   </p>
                   <VestingStatus api={api} address={destAddr} isOwner={false} />
@@ -297,15 +272,16 @@ export default function LockedPay({ api, getSigner, isConnected, walletAddress }
               )}
               <button onClick={() => { setTxHash(null); setUsername(""); setAmount(""); }}
                 style={{
-                  padding: "10px 20px", borderRadius: 8, border: "none",
-                  background: "#111", color: "#fff", fontSize: 14, cursor: "pointer",
+                  padding: "11px 20px", borderRadius: 0, border: "none",
+                  background: "#00FF00", color: "#050505", fontSize: 13, fontWeight: 700, cursor: "pointer",
+                  textTransform: "uppercase", letterSpacing: "0.12em", boxShadow: "0 0 15px rgba(0,255,0,0.2)",
                 }}>
                 Send another
               </button>
             </div>
           ) : (
             <>
-              <p style={{ color: "#6b7280", margin: "0 0 20px", lineHeight: 1.6, fontSize: 14 }}>
+              <p style={{ color: "rgba(255,255,255,0.55)", margin: "0 0 20px", lineHeight: 1.6, fontSize: 14 }}>
                 Lock POT for a recipient — they can see it immediately but cannot spend it
                 until the unlock blocks pass. Perfect for milestone-based payments.
               </p>
@@ -322,44 +298,34 @@ export default function LockedPay({ api, getSigner, isConnected, walletAddress }
 
               <label style={LABEL}>Unlock over how many blocks?</label>
               <input style={INPUT} type="number" min="1"
-                placeholder="e.g. 50  (on local node ≈ 5 minutes)"
+                placeholder="e.g. 50  (on local node ~ 5 minutes)"
                 value={unlockBlocks} onChange={e => setUnlockBlocks(e.target.value)} />
 
               {amount && unlockBlocks && (
-                <div style={{
-                  background: "#fafafe", border: "1px solid #e0e7ff",
-                  borderRadius: 8, padding: "10px 14px", marginBottom: 14,
-                  fontSize: 13, color: "#374151",
-                }}>
+                <div style={INFO_BOX}>
                   {parseFloat(amount || 0).toFixed(4)} POT unlocks gradually over {unlockBlocks} blocks
                   — ~{(parseFloat(amount || 0) / parseInt(unlockBlocks || 1)).toFixed(4)} POT per block
                 </div>
               )}
 
               {(formError || vErr) && (
-                <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 14 }}>
+                <p style={{ color: "#f87171", fontSize: 13, marginBottom: 14 }}>
                   {formError || vErr}
                 </p>
               )}
 
-              <button onClick={handleLockedPay} disabled={submitting || !api}
-                style={{
-                  width: "100%", padding: 13, borderRadius: 8, border: "none",
-                  background: submitting ? "#9ca3af" : "#111",
-                  color: "#fff", fontSize: 15, fontWeight: 600,
-                  cursor: submitting ? "default" : "pointer",
-                }}>
+              <button onClick={handleLockedPay} disabled={submitting || !api} style={PRIMARY_BTN(submitting)}>
                 {submitting ? "Locking payment…" : "Lock payment"}
               </button>
 
-              <p style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", marginTop: 8 }}>
-                Uses vesting.vestedTransfer — POT is locked by the chain, not a contract
+              <p style={FOOTNOTE}>
+                vesting.vestedTransfer — POT is locked by the chain, not a contract
               </p>
 
               {/* Show own vesting status if wallet connected */}
               {walletAddress && (
                 <div style={{ marginTop: 24 }}>
-                  <p style={{ fontSize: 13, fontWeight: 500, color: "#374151", marginBottom: 8 }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.12em" }}>
                     Your locked incoming payments
                   </p>
                   <VestingStatus

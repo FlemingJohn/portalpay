@@ -4,17 +4,10 @@
  *
  * Set an heir by username + amount. The chain schedules a one-shot release to
  * them after an inactivity window (scheduler.scheduleNamedAfter). Tapping
- * "I'm here" cancels the pending release and reschedules it further out
- * (scheduler.cancelNamed + scheduleNamedAfter). If you ever go silent, the
- * chain sends the POT to your heir on its own — no oracle, no bot, no contract.
+ * "I'm here" cancels the pending release and reschedules it further out. If you
+ * ever go silent, the chain sends the POT to your heir on its own.
  *
- * Pallet: scheduler
- *   https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/scheduler.html
- *
- * Linear flow:
- *   Set heir  → resolve username → build transfer call → scheduleCall(after window)
- *   I'm here  → cancelScheduled(old) → scheduleCall(after window) → save new id
- *   Cancel    → cancelScheduled(old) → clear
+ * https://portaldot-dev.readthedocs.io/en/latest/module-interface/extrinsics/scheduler.html
  */
 
 import React, { useState, useEffect } from "react";
@@ -24,13 +17,14 @@ import { log }          from "../lib/logger";
 import { POT_SUFFIX, potToPlanck } from "../lib/chain";
 
 const INPUT = {
-  width: "100%", padding: "10px 14px", borderRadius: 8,
-  border: "1px solid #e5e7eb", fontSize: 14,
-  boxSizing: "border-box", marginBottom: 14,
+  width: "100%", padding: "11px 14px", borderRadius: 0,
+  border: "1px solid #1A1A1A", background: "#0A0A0A", color: "#ffffff",
+  fontSize: 14, boxSizing: "border-box", marginBottom: 14, outline: "none",
 };
 const LABEL = {
-  fontSize: 13, fontWeight: 500, color: "#374151",
-  display: "block", marginBottom: 6,
+  fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)",
+  display: "block", marginBottom: 8,
+  textTransform: "uppercase", letterSpacing: "0.12em",
 };
 
 const storageKey = (addr) => `portalpay:heir:${addr}`;
@@ -137,8 +131,8 @@ export default function Heir({ api, getSigner, isConnected, walletAddress }) {
     return (
       <div style={{ maxWidth: 480, margin: "80px auto", padding: 16, textAlign: "center" }}>
         <div style={{ fontSize: 44, marginBottom: 16 }}>🕊️</div>
-        <h2 style={{ fontWeight: 700, marginBottom: 8 }}>Connect your wallet first</h2>
-        <p style={{ color: "#6b7280", lineHeight: 1.7 }}>
+        <h2 style={{ fontWeight: 800, marginBottom: 8, textTransform: "uppercase" }}>Connect your wallet first</h2>
+        <p style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>
           Click "Connect wallet" to set up an heir.
         </p>
       </div>
@@ -152,8 +146,8 @@ export default function Heir({ api, getSigner, isConnected, walletAddress }) {
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "32px 16px" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 6px" }}>Inheritance</h1>
-      <p style={{ color: "#6b7280", margin: "0 0 24px", lineHeight: 1.6 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "-0.5px" }}>Inheritance</h1>
+      <p style={{ color: "rgba(255,255,255,0.55)", margin: "0 0 24px", lineHeight: 1.6 }}>
         A dead-man's switch for your POT. The chain releases it to your heir if you
         go silent — no contract, no oracle, no bot.
       </p>
@@ -161,26 +155,26 @@ export default function Heir({ api, getSigner, isConnected, walletAddress }) {
       {/* Active heir setup */}
       {record ? (
         <div style={{
-          border: "1px solid #e0e7ff", background: "#fafafe",
-          borderRadius: 12, padding: 20, marginBottom: 16,
+          border: "1px solid #1A1A1A", background: "#0A0A0A",
+          borderRadius: 0, padding: 20, marginBottom: 16,
         }}>
-          <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 4 }}>Heir</div>
-          <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{record.heir}</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.12em" }}>Heir</div>
+          <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, fontFamily: '"JetBrains Mono", ui-monospace, monospace', color: "#00FF00" }}>{record.heir}</div>
 
           <div style={{ display: "flex", gap: 24, marginBottom: 18 }}>
             <div>
-              <div style={{ fontSize: 13, color: "#6b7280" }}>Amount</div>
-              <div style={{ fontSize: 16, fontWeight: 600 }}>{record.amount} POT</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Amount</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{record.amount} POT</div>
             </div>
             <div>
-              <div style={{ fontSize: 13, color: "#6b7280" }}>Releases in</div>
-              <div style={{ fontSize: 16, fontWeight: 600 }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Releases in</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#00FF00" }}>
                 {blocksLeft != null ? `~${blocksLeft} blocks` : "…"}
               </div>
             </div>
           </div>
 
-          <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 16, lineHeight: 1.6 }}>
             If you don't check in before block {releaseBlock ?? "…"}, the chain sends
             {" "}{record.amount} POT to {record.heir} automatically.
           </p>
@@ -188,18 +182,22 @@ export default function Heir({ api, getSigner, isConnected, walletAddress }) {
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={handleCheckIn} disabled={submitting}
               style={{
-                flex: 1, padding: 12, borderRadius: 8, border: "none",
-                background: submitting ? "#9ca3af" : "#111",
-                color: "#fff", fontSize: 14, fontWeight: 600,
+                flex: 1, padding: 12, borderRadius: 0, border: "none",
+                background: submitting ? "#1A1A1A" : "#00FF00",
+                color: submitting ? "rgba(255,255,255,0.4)" : "#050505",
+                fontSize: 13, fontWeight: 700,
                 cursor: submitting ? "default" : "pointer",
+                textTransform: "uppercase", letterSpacing: "0.1em",
+                boxShadow: submitting ? "none" : "0 0 15px rgba(0,255,0,0.2)",
               }}>
               {submitting ? "Working…" : "✋ I'm here (reset timer)"}
             </button>
             <button onClick={handleCancel} disabled={submitting}
               style={{
-                padding: "12px 16px", borderRadius: 8,
-                border: "1px solid #e5e7eb", background: "#fff",
-                color: "#6b7280", fontSize: 14, cursor: "pointer",
+                padding: "12px 16px", borderRadius: 0,
+                border: "1px solid #1A1A1A", background: "transparent",
+                color: "rgba(255,255,255,0.5)", fontSize: 13, cursor: "pointer",
+                textTransform: "uppercase", letterSpacing: "0.1em",
               }}>
               Cancel
             </button>
@@ -219,31 +217,33 @@ export default function Heir({ api, getSigner, isConnected, walletAddress }) {
 
           <label style={LABEL}>Inactivity window (blocks)</label>
           <input style={INPUT} type="number" min="1"
-            placeholder="e.g. 100  (on local node ≈ 10 minutes)"
+            placeholder="e.g. 100  (on local node ~ 10 minutes)"
             value={windowBlocks} onChange={e => setWindowBlocks(e.target.value)} />
-          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: -8, marginBottom: 14, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: -8, marginBottom: 14, lineHeight: 1.5 }}>
             The release fires this many blocks after your last check-in. Tap
             "I'm here" any time to push it back.
           </p>
 
           <button onClick={handleSetHeir} disabled={submitting || !api}
             style={{
-              width: "100%", padding: 13, borderRadius: 8, border: "none",
-              background: submitting ? "#9ca3af" : "#111",
-              color: "#fff", fontSize: 15, fontWeight: 600,
+              width: "100%", padding: 13, borderRadius: 0, border: "none",
+              background: submitting ? "#1A1A1A" : "#00FF00",
+              color: submitting ? "rgba(255,255,255,0.4)" : "#050505",
+              fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em",
               cursor: submitting ? "default" : "pointer",
+              boxShadow: submitting ? "none" : "0 0 15px rgba(0,255,0,0.2)",
             }}>
             {submitting ? "Scheduling onchain…" : "Set heir"}
           </button>
 
-          <p style={{ fontSize: 11, color: "#9ca3af", textAlign: "center", marginTop: 8 }}>
-            Uses scheduler.scheduleNamedAfter — the chain releases the funds itself
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", textAlign: "center", marginTop: 8 }}>
+            scheduler.scheduleNamedAfter — the chain releases the funds itself
           </p>
         </>
       )}
 
       {(formError || schedErr) && (
-        <p style={{ color: "#ef4444", fontSize: 13, marginTop: 14 }}>
+        <p style={{ color: "#f87171", fontSize: 13, marginTop: 14 }}>
           {formError || schedErr}
         </p>
       )}

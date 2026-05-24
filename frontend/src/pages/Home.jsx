@@ -13,24 +13,30 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 560, margin: "0 auto", padding: "64px 16px", textAlign: "center" }}>
 
-      <h1 style={{ fontSize: 36, fontWeight: 800, margin: "0 0 16px", letterSpacing: "-1px" }}>
+      <h1 style={{
+        fontSize: 38, fontWeight: 800, margin: "0 0 16px",
+        letterSpacing: "-1px", textTransform: "uppercase", lineHeight: 1.05,
+      }}>
         Send POT by name.<br />
-        <span style={{ color: "#6366f1" }}>Not by address.</span>
+        <span style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>Not by address.</span>
       </h1>
 
-      <p style={{ fontSize: 17, color: "#6b7280", lineHeight: 1.7, margin: "0 0 40px" }}>
+      <p style={{ fontSize: 17, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, margin: "0 0 40px" }}>
         Portaldot wallet addresses are 48 characters long.
         PortalPay turns them into human names like{" "}
-        <strong>bob.{POT_SUFFIX}</strong> — permanent, onchain, owned by you.
+        <strong style={{ color: "#ffffff", fontFamily: '"JetBrains Mono", ui-monospace, monospace' }}>bob.{POT_SUFFIX}</strong>{" "}
+        — permanent, onchain, owned by you.
       </p>
 
       <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 56 }}>
         <button
           onClick={() => navigate("/claim")}
           style={{
-            padding: "12px 28px", borderRadius: 10, border: "none",
-            background: "#111", color: "#fff", fontSize: 15,
-            fontWeight: 600, cursor: "pointer",
+            padding: "13px 28px", borderRadius: 0, border: "none",
+            background: "#00FF00", color: "#050505", fontSize: 13,
+            fontWeight: 700, cursor: "pointer",
+            textTransform: "uppercase", letterSpacing: "0.12em",
+            boxShadow: "0 0 15px rgba(0,255,0,0.2)",
           }}
         >
           Claim your name
@@ -38,9 +44,10 @@ export default function Home() {
         <button
           onClick={() => navigate("/pay")}
           style={{
-            padding: "12px 28px", borderRadius: 10, fontSize: 15,
-            border: "1px solid #e5e7eb", background: "#fff",
-            color: "#374151", cursor: "pointer",
+            padding: "13px 28px", borderRadius: 0, fontSize: 13,
+            border: "1px solid #1A1A1A", background: "transparent",
+            color: "rgba(255,255,255,0.8)", cursor: "pointer",
+            textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 600,
           }}
         >
           Send POT
@@ -50,28 +57,36 @@ export default function Home() {
       {/* How it works */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, textAlign: "left" }}>
         {[
-          { n: "1", title: "Claim",  body: `Pick a name like yourname.${POT_SUFFIX}. One transaction. Permanent.` },
-          { n: "2", title: "Share",  body: "Share your pay link. Anyone opens it in a browser and sends POT — no account needed." },
-          { n: "3", title: "Receive",body: "POT lands in your wallet instantly. No fee cut. No middleman." },
+          { n: "1", title: "Claim",   body: `Pick a name like yourname.${POT_SUFFIX}. One transaction. Permanent.` },
+          { n: "2", title: "Share",   body: "Share your pay link. Anyone opens it in a browser and sends POT — no account needed." },
+          { n: "3", title: "Receive", body: "POT lands in your wallet instantly. No fee cut. No middleman." },
         ].map(({ n, title, body }) => (
           <div key={n} style={{
-            background: "#f9fafb", borderRadius: 12, padding: "18px 16px",
+            background: "#0A0A0A", border: "1px solid #1A1A1A",
+            borderRadius: 0, padding: "18px 16px",
           }}>
             <div style={{
-              width: 28, height: 28, borderRadius: "50%", background: "#111",
-              color: "#fff", display: "flex", alignItems: "center",
+              width: 28, height: 28, borderRadius: 0, background: "#00FF00",
+              color: "#050505", display: "flex", alignItems: "center",
               justifyContent: "center", fontSize: 13, fontWeight: 700, marginBottom: 10,
+              fontFamily: '"JetBrains Mono", ui-monospace, monospace',
             }}>
               {n}
             </div>
-            <p style={{ fontWeight: 600, margin: "0 0 6px", fontSize: 15 }}>{title}</p>
-            <p style={{ color: "#6b7280", fontSize: 13, margin: 0, lineHeight: 1.5 }}>{body}</p>
+            <p style={{
+              fontWeight: 700, margin: "0 0 6px", fontSize: 14,
+              textTransform: "uppercase", letterSpacing: "0.08em",
+            }}>{title}</p>
+            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, margin: 0, lineHeight: 1.5 }}>{body}</p>
           </div>
         ))}
       </div>
 
-      <p style={{ marginTop: 40, fontSize: 12, color: "#d1d5db" }}>
-        Built on Portaldot · Uses native identity pallet · No smart contracts
+      <p style={{
+        marginTop: 40, fontSize: 11, color: "rgba(255,255,255,0.3)",
+        textTransform: "uppercase", letterSpacing: "0.15em",
+      }}>
+        Built on Portaldot · Native identity pallet · No smart contracts
       </p>
     </div>
   );

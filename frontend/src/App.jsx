@@ -30,26 +30,26 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div style={{ minHeight: "100vh", background: "#fafafa", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "#050505", color: "#ffffff", fontFamily: '"Inter", ui-sans-serif, system-ui, sans-serif' }}>
 
         <NavBar chainReady={chain.ready} wallet={wallet} />
 
         {/* Chain error banner */}
         {chain.error && (
           <div style={{
-            background: "#fef2f2", borderBottom: "1px solid #fecaca",
-            padding: "10px 24px", fontSize: 13, color: "#dc2626", textAlign: "center",
+            background: "#0A0A0A", borderBottom: "1px solid #1A1A1A",
+            padding: "10px 24px", fontSize: 13, color: "#f87171", textAlign: "center",
           }}>
             {chain.error} — Make sure the local node is running:{" "}
-            <code style={{ fontFamily: "monospace" }}>./portaldot_dev --dev --alice</code>
+            <code style={{ fontFamily: '"JetBrains Mono", ui-monospace, monospace', color: "#00FF00" }}>./portaldot_dev --dev --alice</code>
           </div>
         )}
 
         {/* Connecting state */}
         {!chain.ready && !chain.error && (
-          <div style={{ textAlign: "center", paddingTop: 80, color: "#9ca3af" }}>
-            <div style={{ fontSize: 13, marginBottom: 8 }}>Connecting to Portaldot…</div>
-            <div style={{ fontSize: 11, color: "#d1d5db" }}>
+          <div style={{ textAlign: "center", paddingTop: 80, color: "rgba(255,255,255,0.55)" }}>
+            <div style={{ fontSize: 11, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.2em" }}>Connecting to Portaldot…</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: '"JetBrains Mono", ui-monospace, monospace' }}>
               ws://127.0.0.1:9944
             </div>
           </div>

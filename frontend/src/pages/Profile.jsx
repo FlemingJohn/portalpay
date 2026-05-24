@@ -1,16 +1,9 @@
 /**
  * pages/Profile.jsx
  * Public profile for any PortalPay username or SS58 address.
- * No wallet needed — all reads are free.
+ * No wallet needed — all reads are free. Handles /profile/:username links.
  *
- * Also handles /profile/:username route for shareable links.
- * e.g. portalpay.app/profile/bob.portalpay
- *
- * Reads:
- *   identity.identityOf  — display name, judgements
- *   identity.usernameOf  — primary username
- *   identity.usernameInfoOf — resolve username → address
- *   system.account       — POT balance
+ * Reads: identity.identityOf, identity.usernameOf, identity.usernameInfoOf, system.account
  */
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -48,7 +41,6 @@ export default function Profile({ api, getSigner, walletAddress }) {
 
       let resolvedAddress = query.trim();
 
-      // If it looks like a username (not an SS58 address), resolve it
       if (!query.startsWith("5")) {
         const fullName = query.includes(".") ? query : `${query}.${POT_SUFFIX}`;
         const addr     = await resolveUsername(fullName);
@@ -79,7 +71,6 @@ export default function Profile({ api, getSigner, walletAddress }) {
     setLoading(false);
   }, [api, resolveUsername, getIdentity, getBalance]);
 
-  // Auto-load if URL has a username — declared AFTER handleLookup
   useEffect(() => {
     if (urlUsername && api) handleLookup(urlUsername);
   }, [urlUsername, api, handleLookup]);
@@ -90,10 +81,9 @@ export default function Profile({ api, getSigner, walletAddress }) {
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "32px 16px" }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 6px" }}>Profile</h1>
-      <p style={{ color: "#6b7280", margin: "0 0 24px", lineHeight: 1.6 }}>
-        Look up any PortalPay username or Portaldot address.
-        No wallet needed.
+      <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "-0.5px" }}>Profile</h1>
+      <p style={{ color: "rgba(255,255,255,0.55)", margin: "0 0 24px", lineHeight: 1.6 }}>
+        Look up any PortalPay username or Portaldot address. No wallet needed.
       </p>
 
       {/* Search bar */}
@@ -105,16 +95,18 @@ export default function Profile({ api, getSigner, walletAddress }) {
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleLookup(input)}
           style={{
-            flex: 1, padding: "10px 14px", borderRadius: 8,
-            border: "1px solid #e5e7eb", fontSize: 14,
+            flex: 1, padding: "11px 14px", borderRadius: 0,
+            border: "1px solid #1A1A1A", background: "#0A0A0A", color: "#ffffff",
+            fontSize: 14, outline: "none",
           }}
         />
         <button
           onClick={() => handleLookup(input)}
           disabled={loading || !api}
           style={{
-            padding: "10px 20px", borderRadius: 8, border: "none",
-            background: "#111", color: "#fff", fontSize: 14, cursor: "pointer",
+            padding: "11px 20px", borderRadius: 0, border: "none",
+            background: "#00FF00", color: "#050505", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            textTransform: "uppercase", letterSpacing: "0.12em", boxShadow: "0 0 15px rgba(0,255,0,0.2)",
           }}
         >
           {loading ? "Loading…" : "Look up"}
@@ -122,22 +114,23 @@ export default function Profile({ api, getSigner, walletAddress }) {
       </div>
 
       {error && (
-        <p style={{ color: "#ef4444", fontSize: 14, marginBottom: 16 }}>{error}</p>
+        <p style={{ color: "#f87171", fontSize: 14, marginBottom: 16 }}>{error}</p>
       )}
 
       {searched && identity && (
         <div>
           {/* Identity card */}
           <div style={{
-            border: "1px solid #e5e7eb", borderRadius: 14, padding: "24px 24px 20px",
-            background: "#fff", marginBottom: 16,
+            border: "1px solid #1A1A1A", borderRadius: 0, padding: "24px 24px 20px",
+            background: "#0A0A0A", marginBottom: 16,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
               {/* Avatar */}
               <div style={{
-                width: 56, height: 56, borderRadius: "50%",
-                background: "#f3f4f6", display: "flex", alignItems: "center",
-                justifyContent: "center", fontSize: 24, fontWeight: 700, color: "#374151",
+                width: 56, height: 56, borderRadius: 0,
+                background: "#050505", border: "1px solid #1A1A1A", display: "flex", alignItems: "center",
+                justifyContent: "center", fontSize: 24, fontWeight: 700, color: "#00FF00",
+                fontFamily: '"JetBrains Mono", ui-monospace, monospace',
               }}>
                 {(identity.display || "?")[0].toUpperCase()}
               </div>
@@ -148,15 +141,17 @@ export default function Profile({ api, getSigner, walletAddress }) {
                   </span>
                   {identity.isVerified && (
                     <span style={{
-                      fontSize: 11, padding: "2px 8px", borderRadius: 20,
-                      background: "#dcfce7", color: "#166534", fontWeight: 500,
+                      fontSize: 10, padding: "2px 8px", borderRadius: 0,
+                      background: "rgba(0,255,0,0.1)", color: "#00FF00", fontWeight: 600,
+                      border: "1px solid rgba(0,255,0,0.3)",
+                      textTransform: "uppercase", letterSpacing: "0.1em",
                     }}>
                       ✓ Verified
                     </span>
                   )}
                 </div>
                 {identity.username && (
-                  <div style={{ fontSize: 14, color: "#6b7280", marginTop: 2 }}>
+                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 2, fontFamily: '"JetBrains Mono", ui-monospace, monospace' }}>
                     {typeof identity.username === "string"
                       ? identity.username
                       : JSON.stringify(identity.username)}
@@ -167,22 +162,22 @@ export default function Profile({ api, getSigner, walletAddress }) {
 
             {/* Stats */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px" }}>
-                <p style={{ margin: "0 0 2px", fontSize: 11, color: "#9ca3af" }}>Balance</p>
-                <p style={{ margin: 0, fontWeight: 700, fontSize: 18 }}>
+              <div style={{ background: "#050505", border: "1px solid #1A1A1A", borderRadius: 0, padding: "10px 14px" }}>
+                <p style={{ margin: "0 0 2px", fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Balance</p>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: 18, fontFamily: '"JetBrains Mono", ui-monospace, monospace' }}>
                   {balance !== null ? `${balance.toFixed(4)} POT` : "—"}
                 </p>
               </div>
-              <div style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px" }}>
-                <p style={{ margin: "0 0 2px", fontSize: 11, color: "#9ca3af" }}>Address</p>
-                <p style={{ margin: 0, fontFamily: "monospace", fontSize: 12, color: "#374151" }}>
+              <div style={{ background: "#050505", border: "1px solid #1A1A1A", borderRadius: 0, padding: "10px 14px" }}>
+                <p style={{ margin: "0 0 2px", fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.12em" }}>Address</p>
+                <p style={{ margin: 0, fontFamily: '"JetBrains Mono", ui-monospace, monospace', fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
                   {shortAddress(address)}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Vesting status — locked POT from vesting.vesting storage */}
+          {/* Vesting status */}
           <VestingStatus
             api={api}
             address={address}
@@ -193,24 +188,23 @@ export default function Profile({ api, getSigner, walletAddress }) {
           {/* Share link */}
           {shareLink && (
             <div style={{
-              background: "#f3f4f6", borderRadius: 10, padding: "12px 16px",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
+              background: "#0A0A0A", border: "1px solid #1A1A1A", borderRadius: 0, padding: "12px 16px",
+              display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16,
             }}>
-              <div>
-                <p style={{ margin: "0 0 2px", fontSize: 11, color: "#9ca3af" }}>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ margin: "0 0 2px", fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
                   Share this pay link
                 </p>
-                <p style={{ margin: 0, fontFamily: "monospace", fontSize: 12, color: "#374151" }}>
+                <p style={{ margin: 0, fontFamily: '"JetBrains Mono", ui-monospace, monospace', fontSize: 12, color: "rgba(255,255,255,0.7)", wordBreak: "break-all" }}>
                   {shareLink}
                 </p>
               </div>
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(shareLink);
-                }}
+                onClick={() => { navigator.clipboard.writeText(shareLink); }}
                 style={{
-                  padding: "6px 14px", borderRadius: 6, border: "1px solid #e5e7eb",
-                  background: "#fff", fontSize: 12, cursor: "pointer", color: "#374151",
+                  padding: "7px 14px", borderRadius: 0, border: "1px solid #1A1A1A",
+                  background: "transparent", fontSize: 11, cursor: "pointer", color: "#00FF00",
+                  textTransform: "uppercase", letterSpacing: "0.1em", flexShrink: 0, marginLeft: 12,
                 }}
               >
                 Copy
@@ -220,18 +214,18 @@ export default function Profile({ api, getSigner, walletAddress }) {
         </div>
       )}
 
-      {/* Live transaction feed filtered to this address — Feature 1 */}
-        {address && (
-          <div style={{ marginTop: 20 }}>
-            <p style={{ fontSize: 13, fontWeight: 500, color: "#374151", margin: "0 0 10px" }}>
-              Live transactions
-            </p>
-            <TransactionFeed api={api} filterAddress={address} maxHeight={280} />
-          </div>
-        )}
+      {/* Live transaction feed filtered to this address */}
+      {address && (
+        <div style={{ marginTop: 20 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)", margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.12em" }}>
+            Live transactions
+          </p>
+          <TransactionFeed api={api} filterAddress={address} maxHeight={280} />
+        </div>
+      )}
 
       {searched && !identity && !error && (
-        <div style={{ textAlign: "center", paddingTop: 48, color: "#9ca3af" }}>
+        <div style={{ textAlign: "center", paddingTop: 48, color: "rgba(255,255,255,0.4)" }}>
           <p>No identity found for this address.</p>
           <p style={{ fontSize: 13 }}>They may not have set up their PortalPay profile yet.</p>
         </div>
