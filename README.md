@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6366f1,100:00c6ff&height=220&section=header&text=PortalPay&fontSize=70&fontColor=ffffff&fontAlignY=35&desc=Send%20POT%20to%20a%20name,%20not%20a%2048-character%20address&descAlignY=58&descSize=18" width="100%"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:050505,100:1A1A1A&height=220&section=header&text=PortalPay&fontSize=70&fontColor=00FF00&fontAlignY=35&desc=Send%20POT%20to%20a%20name,%20not%20a%2048-character%20address&descAlignY=58&descSize=18" width="100%"/>
 </div>
 
 <div align="center">
@@ -380,5 +380,5 @@ MIT. You own what you build.
 </div>
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00c6ff,100:6366f1&height=160&section=footer&text=No%20contracts.%20No%20servers.%20Just%20names.&fontSize=28&fontColor=ffffff&fontAlignY=72" width="100%"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:1A1A1A,100:050505&height=160&section=footer&text=No%20contracts.%20No%20servers.%20Just%20names.&fontSize=28&fontColor=00FF00&fontAlignY=72" width="100%"/>
 </div>
