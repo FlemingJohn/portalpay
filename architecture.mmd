@@ -1,0 +1,18 @@
+flowchart TD
+    U([User]) -->|clicks a button| P[Page]
+    P -->|calls a hook| H{Hooks}
+
+    H --> HI[useIdentity]
+    H --> HP[usePayment]
+    H --> HV[useVesting]
+    H --> HS[useScheduler]
+
+    HI -->|identity| API["@polkadot/api"]
+    HP -->|balances / utility / assets / system| API
+    HV -->|vesting| API
+    HS -->|scheduler| API
+
+    API --> W[Polkadot.js extension signs]
+    W --> C[(Portaldot blockchain)]
+    C -. runs scheduled payments by itself .-> C
+    C -->|transaction hash| P
