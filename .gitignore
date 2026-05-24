@@ -62,3 +62,7 @@ pyvenv.cfg
 # OS files
 .DS_Store
 Thumbs.db
+
+# Reference projects
+DFX-UI/
+
