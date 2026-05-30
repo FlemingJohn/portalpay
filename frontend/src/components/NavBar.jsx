@@ -69,9 +69,9 @@ export default function NavBar({ chainReady, wallet }) {
       {/* Nav tabs */}
       <div style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
         {navBtn("Pay",     "/pay")}
-        {navBtn("Payroll", "/payroll")}
         {navBtn("Locked",  "/locked")}
-        {navBtn("Heir",    "/heir")}
+        {navBtn("Shared",  "/multisig")}
+        {navBtn("Token",   "/token")}
         {navBtn("Profile", "/profile")}
         {navBtn("Claim",   "/claim")}
       </div>

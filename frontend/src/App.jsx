@@ -21,8 +21,8 @@ import Pay       from "./pages/Pay";
 import Profile   from "./pages/Profile";
 import Claim     from "./pages/Claim";
 import LockedPay from "./pages/LockedPay";
-import Payroll   from "./pages/Payroll";
-import Heir       from "./pages/Heir";
+import Multisig   from "./pages/Multisig";
+import Token       from "./pages/Token";
 
 export default function App() {
   const chain  = useChain();
@@ -89,6 +89,7 @@ export default function App() {
                 api={chain.api}
                 getSigner={wallet.getSigner}
                 isConnected={wallet.isConnected}
+                walletAddress={wallet.selected?.address}
               />
             } />
 
@@ -101,16 +102,17 @@ export default function App() {
               />
             } />
 
-            <Route path="/payroll" element={
-              <Payroll
+            <Route path="/multisig" element={
+              <Multisig
                 api={chain.api}
                 getSigner={wallet.getSigner}
                 isConnected={wallet.isConnected}
+                walletAddress={wallet.selected?.address}
               />
             } />
 
-            <Route path="/heir" element={
-              <Heir
+            <Route path="/token" element={
+              <Token
                 api={chain.api}
                 getSigner={wallet.getSigner}
                 isConnected={wallet.isConnected}
