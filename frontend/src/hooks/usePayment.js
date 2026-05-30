@@ -168,7 +168,9 @@ export function usePayment(api) {
 
       const calls = [
         api.tx.balances.transferKeepAlive(destAddress, potToPlanck(amountPot)),
-        api.tx.system.remarkWithEvent(new TextEncoder().encode(memo)),
+        // Pass the memo as a string — @polkadot/api encodes it to Bytes. (Passing a
+        // raw Uint8Array fails to encode against this runtime's remarkWithEvent.)
+        api.tx.system.remarkWithEvent(memo),
       ];
 
       const { signer, address } = await getSigner();

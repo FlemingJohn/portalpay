@@ -39,17 +39,12 @@ export default function Profile({ api, getSigner, walletAddress }) {
       log.banner("PortalPay — Profile Lookup");
       log.step(1, `Looking up: ${query}`);
 
-      let resolvedAddress = query.trim();
-
-      if (!query.startsWith("5")) {
-        const fullName = query.includes(".") ? query : `${query}.${POT_SUFFIX}`;
-        const addr     = await resolveUsername(fullName);
-        if (!addr) {
-          setError(`Username '${fullName}' not found on Portaldot`);
-          setLoading(false);
-          return;
-        }
-        resolvedAddress = addr;
+      // resolveUsername handles a raw 5… address, a #handle/index, or a name.
+      const resolvedAddress = await resolveUsername(query.trim());
+      if (!resolvedAddress) {
+        setError(`Could not resolve '${query.trim()}' — try a #handle or a 5… address`);
+        setLoading(false);
+        return;
       }
 
       setAddress(resolvedAddress);
@@ -90,7 +85,7 @@ export default function Profile({ api, getSigner, walletAddress }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 28 }}>
         <input
           type="text"
-          placeholder={`e.g. bob.${POT_SUFFIX} or 5Grwva…`}
+          placeholder={`#42 or 5Grwva… address`}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleLookup(input)}

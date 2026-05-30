@@ -16,8 +16,19 @@
  */
 
 import { useState, useCallback } from "react";
+import { decodeAddress } from "@polkadot/util-crypto";
 import { log } from "../lib/logger";
-import { planckToPot } from "../lib/chain";
+import { planckToPot, POT_SUFFIX } from "../lib/chain";
+
+/** True if `value` is a valid SS58 address (decodes without throwing). */
+function isSs58Address(value) {
+  try {
+    decodeAddress(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function useIdentity(api) {
 
@@ -31,11 +42,48 @@ export function useIdentity(api) {
    * Storage: identity.usernameInfoOf
    * https://portaldot-dev.readthedocs.io/en/latest/module-interface/storage/identity.html
    */
-  const resolveUsername = useCallback(async (usernameFull) => {
+  const resolveUsername = useCallback(async (input) => {
     if (!api) throw new Error("Chain not connected");
+
+    const value = (input ?? "").toString().trim();
+    if (!value) return null;
+
+    // A raw SS58 address is used directly. Portaldot's runtime ships the classic
+    // identity pallet with NO username system, so a typed/pasted address is the
+    // way to address a recipient. If it decodes as an address, use it as-is.
+    if (isSs58Address(value)) {
+      log.info("Recipient is an address", value);
+      return value;
+    }
+
+    // A short account index — "#42" or "42" — resolved via the indices pallet.
+    const idxMatch = value.match(/^#?(\d+)$/);
+    if (idxMatch) {
+      const n   = parseInt(idxMatch[1], 10);
+      const rec = await api.query.indices.accounts(n);
+      if (rec.isSome) {
+        const owner = rec.unwrap()[0].toString();
+        log.success(`Resolved: #${n} → ${owner}`);
+        return owner;
+      }
+      log.warn(`Index #${n} is not claimed`);
+      return null;
+    }
+
+    // Otherwise treat it as a username, applying the .portalpay suffix if needed.
+    const usernameFull = value.includes(".") ? value : `${value}.${POT_SUFFIX}`;
 
     log.step(1, "Resolving username → address");
     log.info("Username", usernameFull);
+
+    // The username sub-system may not exist on the connected chain.
+    if (!api.query.identity.usernameInfoOf) {
+      log.warn(
+        "This chain's identity pallet has no username system — " +
+        "paste a full SS58 address (5…) instead of a name."
+      );
+      return null;
+    }
 
     const result = await api.query.identity.usernameInfoOf(
       new TextEncoder().encode(usernameFull)
@@ -127,17 +175,18 @@ export function useIdentity(api) {
 
       await new Promise((resolve, reject) => {
         api.tx.identity
+          // IdentityInfo shape on this runtime: display/legal/web/riot/email/
+          // pgpFingerprint/image/twitter (no matrix/github/discord). `additional`
+          // defaults to empty.
           .setIdentity({
             display:        { Raw: displayName },
             legal:          { None: null },
             web:            { None: null },
-            matrix:         { None: null },
+            riot:           { None: null },
             email:          { None: null },
             pgpFingerprint: null,
             image:          { None: null },
             twitter:        { None: null },
-            github:         { None: null },
-            discord:        { None: null },
           })
           .signAndSend(address, { signer }, ({ status, dispatchError }) => {
             if (dispatchError) return reject(new Error(dispatchError.toString()));

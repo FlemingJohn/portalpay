@@ -81,7 +81,7 @@ export default function Pay({ api, getSigner, isConnected }) {
     if (!username.trim()) return setFormError("Enter a username");
     if (!amount || parseFloat(amount) <= 0) return setFormError("Enter a valid amount");
 
-    const fullName = username.includes(".") ? username : `${username}.${POT_SUFFIX}`;
+    const fullName = username;  // resolveUsername accepts a name or a raw SS58 address
 
     try {
       log.banner("PortalPay — Single Payment");
@@ -126,8 +126,7 @@ export default function Pay({ api, getSigner, isConnected }) {
 
       const resolved = await Promise.all(
         valid.map(async r => {
-          const fullName = r.username.includes(".") ? r.username : `${r.username}.${POT_SUFFIX}`;
-          const address  = await resolveUsername(fullName);
+          const address  = await resolveUsername(r.username);
           if (!address) throw new Error(`Username '${fullName}' not found`);
           return { address, amountPot: parseFloat(r.amount), username: fullName };
         })
@@ -150,7 +149,7 @@ export default function Pay({ api, getSigner, isConnected }) {
     if (!amount || parseFloat(amount) <= 0) return setFormError("Enter a valid amount");
     if (!memo.trim()) return setFormError("Enter a memo / invoice note");
 
-    const fullName = username.includes(".") ? username : `${username}.${POT_SUFFIX}`;
+    const fullName = username;  // resolveUsername accepts a name or a raw SS58 address
 
     try {
       log.banner("PortalPay — Payment with memo");
@@ -177,7 +176,7 @@ export default function Pay({ api, getSigner, isConnected }) {
     if (!username.trim()) return setFormError("Enter a username");
     if (!amount || parseFloat(amount) <= 0) return setFormError("Enter a valid amount");
 
-    const fullName = username.includes(".") ? username : `${username}.${POT_SUFFIX}`;
+    const fullName = username;  // resolveUsername accepts a name or a raw SS58 address
 
     try {
       log.banner("PortalPay — Asset payment");
@@ -279,7 +278,7 @@ export default function Pay({ api, getSigner, isConnected }) {
           </label>
           <input
             style={INPUT} type="text"
-            placeholder={`e.g. bob.${POT_SUFFIX}`}
+            placeholder={`#42 or 5Grwva… address`}
             value={username}
             onChange={e => setUsername(e.target.value)}
           />
@@ -303,7 +302,7 @@ export default function Pay({ api, getSigner, isConnected }) {
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center" }}>
               <input
                 style={{ ...INPUT, marginBottom: 0, flex: 2 }}
-                type="text" placeholder={`username.${POT_SUFFIX}`}
+                type="text" placeholder={`#42 or 5Grwva… address`}
                 value={r.username}
                 onChange={e => updateRecipient(i, "username", e.target.value)}
               />
@@ -339,7 +338,7 @@ export default function Pay({ api, getSigner, isConnected }) {
           <label style={LABEL}>Recipient username</label>
           <input
             style={INPUT} type="text"
-            placeholder={`e.g. bob.${POT_SUFFIX}`}
+            placeholder={`#42 or 5Grwva… address`}
             value={username}
             onChange={e => setUsername(e.target.value)}
           />
@@ -392,7 +391,7 @@ export default function Pay({ api, getSigner, isConnected }) {
           <label style={LABEL}>Recipient username</label>
           <input
             style={INPUT} type="text"
-            placeholder={`e.g. bob.${POT_SUFFIX}`}
+            placeholder={`#42 or 5Grwva… address`}
             value={username}
             onChange={e => setUsername(e.target.value)}
           />
